@@ -84,15 +84,15 @@ public class TVWaitQueueLANListener extends MultipleSocketObjectServer {
 
                 // @TODO
                 // Call the service
-                StationProfileBean wsStationProfileBean = null; // REPLACE WITH JSON CALL
+                StationProfileBean stationProfileBean = StationProfileConfigSession.getProfileDetailsBean(); // REPLACE WITH JSON CALL
 
-                if(wsStationProfileBean != null) {
-                    wsStationProfileBean.setUsername(userName);
-                    wsStationProfileBean.setPassword(password);
-                    wsStationProfileBean.setEndpoint(endPoint);
+                if(stationProfileBean != null) {
+                    stationProfileBean.setUsername(userName);
+                    stationProfileBean.setPassword(password);
+                    stationProfileBean.setEndpoint(endPoint);
 
                     // Persist the results to the private file system
-                    StationProfileConfigSession.persistStationBean(wsStationProfileBean);
+                    StationProfileConfigSession.persistStationBean(stationProfileBean);
                 }
             }
             catch(Exception e) {

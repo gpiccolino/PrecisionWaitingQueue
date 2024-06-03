@@ -49,9 +49,9 @@ public class TVWaitQueueApplication extends Application {
         super.onCreate();
         context = this.getApplicationContext();
 
-        // Start listener service
-        TVWaitQueueLANListener poslanListener = new TVWaitQueueLANListener(3588, this.getApplicationContext());
-        poslanListener.startServer();
+//        // Start listener service
+//        TVWaitQueueLANListener poslanListener = new TVWaitQueueLANListener(3588, this.getApplicationContext());
+//        poslanListener.startServer();
 
         // Timer to check for new orders
         util = new UpdateViewUtil();
@@ -61,6 +61,8 @@ public class TVWaitQueueApplication extends Application {
 
         // Start the tv waiting queue service
         startTVWaitQueueService();
+        setBroadcastReceiver();
+
     }
 
     /**

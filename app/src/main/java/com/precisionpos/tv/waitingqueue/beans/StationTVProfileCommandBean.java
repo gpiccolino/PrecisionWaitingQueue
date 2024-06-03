@@ -19,7 +19,7 @@ public class StationTVProfileCommandBean implements Serializable {
 
 
 	public static final int COMMAND_REFRESH	 	= 87212211;
-	public static final int COMMAND_SETACTIVE		= 87212221;
+	public static final int COMMAND_SETACTIVE	= 87212221;
 	public static final int COMMAND_SETINACTIVE	= 87212231;
 
 	// Command type

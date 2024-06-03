@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">PrecisionWaitingQueue</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <!-- Strings used for images -->
+    <string name="icon_waving_hand">waving_hand</string>
+    <string name="icon_party_popper">party_popper</string>
+    <string name="icon_qr_code">qr_code</string>
+    <string name="icon_order_type">order_type</string>
+    <string name="precision_logo">precision_logo</string>
+    <!-- Strings used for labels -->
+    <string name="welcome_label">Welcome!</string>
+    <string name="pickup_list_label">Pickup List</string>
+    <string name="waiting_label">Waiting</string>
+    <string name="ready_label">Ready</string>
+    <string name="number_label">#</string>
+    <string name="order_details_label">Order Details</string>
+    <string name="customer_name_label">Customer Name</string>
+    <string name="arrival_time_label">Arrival Time</string>
+    <string name="ready_time_label">Ready Time</string>
+    <string name="status_label">Status</string>
+    <string name="scan_qr_label">Scan to let us know you\'re here</string>
+    <string name="activate_scan_qr_label">1. Scan the QR code to activate your device</string>
+    <string name="activate_device_code_label">2. Enter your device code: AX5–78J-44K-23U</string>
+    <string name="abbreviated_customer_name">%1$s %2$s.</string>
+    <string name="valued_customer">Valued Customer</string>
+    <string name="ticket_number">Ticket #%1$s</string>
+    <!-- Strings used for default fields -->
+    <string name="default_count">0</string>
+    <string name="default_row_number">1</string>
+    <string name="default_time">0:00 PM</string>
+    <string name="default_customer_name">Gary L.</string>
+    <string name="default_ticket_number">Ticket #0000</string>
+    <string name="default_date_time">0/0/00 00:00:00 PM</string>
+
+</resources>

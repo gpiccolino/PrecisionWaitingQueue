@@ -14,7 +14,7 @@ public class TVWaitQueueResponseBean {
     public TVWaitQueueResponseBean() { }
 
     public TVWaitQueueResponseBean(boolean opsuccess, String opreturnmessage, boolean opautologout,
-                                   String opredirecttopanelid, StationProfile stationProfile,
+                                   String opredirecttopanelid, StationProfileBean stationProfile,
                                    ArrayList<ListOrder> listOrders) {
         this.opsuccess = opsuccess;
         this.opreturnmessage = opreturnmessage;
@@ -65,15 +65,15 @@ public class TVWaitQueueResponseBean {
 
     String opredirecttopanelid;
     @JsonProperty("stationProfile")
-    public StationProfile getStationProfile() {
+    public StationProfileBean getStationProfile() {
         return this.stationProfile;
     }
 
-    public void setStationProfile(StationProfile stationProfile) {
+    public void setStationProfile(StationProfileBean stationProfile) {
         this.stationProfile = stationProfile;
     }
 
-    StationProfile stationProfile;
+    StationProfileBean stationProfile;
     @JsonProperty("listOrders")
     public ArrayList < ListOrder > getListOrders() {
         return this.listOrders;

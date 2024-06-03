@@ -2,28 +2,30 @@ package com.precisionpos.tv.waitingqueue.beans;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.io.Serializable;
+
 /**
  * TVWaitQueueStationProfile
  * @since 1/4/23
  * @author Kate
  */
-public class StationProfile {
+public class StationProfileBean implements Serializable {
 
-    public StationProfile() { }
+    public StationProfileBean() { }
 
-    public StationProfile(boolean opsuccess, String opreturnmessage, boolean opautologout,
-                          String opredirecttopanelid, int businessID, int storeFrontCD,
-                          int transcode, String profileName, String storeName,
-                          String wifiMacAddress, String lanMacAddress, int stationCode,
-                          String androidID, boolean isActive, int waitingQueueProfileType,
-                          boolean displayOLOOrders, boolean displayKioskOrders,
-                          boolean displayThirdPartyOrders, int rowFontSize, int numberOfRows,
-                          String tvMessage, int orderIDPreference, String image1, String image2,
-                          String image3, String image4, String image5, String image6, String image7,
-                          String image8, String image9, String image10, String video1,
-                          String video2, String video3, String video4, String video5, String video6,
-                          String video7, String video8, String video9, String video10,
-                          long timestampUpdated, long timestampNewInsert) {
+    public StationProfileBean(boolean opsuccess, String opreturnmessage, boolean opautologout,
+                              String opredirecttopanelid, int businessID, int storeFrontCD,
+                              int transcode, String profileName, String storeName,
+                              String wifiMacAddress, String lanMacAddress, int stationCode,
+                              String androidID, boolean isActive, int waitingQueueProfileType,
+                              boolean displayOLOOrders, boolean displayKioskOrders,
+                              boolean displayThirdPartyOrders, int rowFontSize, int numberOfRows,
+                              String tvMessage, int orderIDPreference, String image1, String image2,
+                              String image3, String image4, String image5, String image6, String image7,
+                              String image8, String image9, String image10, String video1,
+                              String video2, String video3, String video4, String video5, String video6,
+                              String video7, String video8, String video9, String video10,
+                              long timestampUpdated, long timestampNewInsert) {
         this.opsuccess = opsuccess;
         this.opreturnmessage = opreturnmessage;
         this.opautologout = opautologout;
@@ -69,6 +71,28 @@ public class StationProfile {
         this.timestampUpdated = timestampUpdated;
         this.timestampNewInsert = timestampNewInsert;
     }
+
+    // Not part of JSON
+    public long getLicenseid() {
+        return this.licenseid;
+    }
+
+    public void setLicenseid(long licenseid) {
+        this.licenseid = licenseid;
+    }
+
+    long licenseid;
+
+    // Not part of JSON
+    public boolean getIsDefaultProfile() {
+        return this.isDefaultProfile;
+    }
+
+    public void setIsDefaultProfile(boolean isDefaultProfile) {
+        this.isDefaultProfile = isDefaultProfile;
+    }
+
+    boolean isDefaultProfile = false;
 
     @JsonProperty("opsuccess")
     public boolean getOpsuccess() {

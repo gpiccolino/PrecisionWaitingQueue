@@ -1,10 +1,16 @@
 package com.precisionpos.tv.waitingqueue.app;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 
-import com.precisionpos.tv.waitingqueue.communication.POSLANListener;
+import com.precisionpos.tv.waitingqueue.beans.StationProfileBean;
+import com.precisionpos.tv.waitingqueue.communication.TVWaitQueueLANListener;
+import com.precisionpos.tv.waitingqueue.service.TVWaitQueueService;
 import com.precisionpos.tv.waitingqueue.utils.UpdateViewUtil;
 
 import java.util.Timer;
@@ -24,6 +30,12 @@ public class TVWaitQueueApplication extends Application {
     private UpdateViewUtil util;
     public Timer timer;
 
+    // Broadcast receiver for services
+    private BroadcastReceiver mServiceReceiver;
+
+    // Callback event for service
+    public static final String BROADCAST_TVWAITINGQUEUELISTENER_DESTROY   = "broadcast-tvwaitingqueue-destroy";
+
     // Constructor
     public TVWaitQueueApplication() {
         super();
@@ -38,7 +50,7 @@ public class TVWaitQueueApplication extends Application {
         context = this.getApplicationContext();
 
         // Start listener service
-        POSLANListener poslanListener = new POSLANListener(3588, this.getApplicationContext());
+        TVWaitQueueLANListener poslanListener = new TVWaitQueueLANListener(3588, this.getApplicationContext());
         poslanListener.startServer();
 
         // Timer to check for new orders
@@ -46,6 +58,9 @@ public class TVWaitQueueApplication extends Application {
 
         // Create new timer task to update TV
         updateTV();
+
+        // Start the tv waiting queue service
+        startTVWaitQueueService();
     }
 
     /**
@@ -71,6 +86,51 @@ public class TVWaitQueueApplication extends Application {
     }
 
     /**
+     * Start the listener for events
+     */
+    private void setBroadcastReceiver() {
+        // Create the receiver
+        mServiceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                // TV waiting queue service was destroyed
+                // New online ordering
+                if (intent.getAction().equals(BROADCAST_TVWAITINGQUEUELISTENER_DESTROY)) {
+                    startTVWaitQueueService();
+                }
+            }
+        };
+
+        // Add the intent filter
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(BROADCAST_TVWAITINGQUEUELISTENER_DESTROY);
+
+        try {
+            registerReceiver(mServiceReceiver, mIntentFilter);
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * Start the waiting queue service
+     */
+    private void startTVWaitQueueService() {
+        try {
+            StationProfileBean sdb = null; // StationConfigSession.getStationDetailsBean();
+
+            Object service = (Object) getRunningService(TVWaitQueueService.class);
+            if (service == null || !isMyServiceRunning(TVWaitQueueService.class)) {
+                Intent tvWaitQueueService = new Intent(this, TVWaitQueueService.class);
+                startService(tvWaitQueueService);
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Terminate activity
      */
     @Override
@@ -78,6 +138,61 @@ public class TVWaitQueueApplication extends Application {
         super.onTerminate();
         timer.cancel(); // cancel timer thread
         isTerminated = true; // set flag
+
+        // Unregister the receiver
+        if(mServiceReceiver != null) {
+            try {
+                unregisterReceiver(mServiceReceiver);
+            }
+            catch(Exception e) {}
+        }
+
+        try {
+            // Stop the the LAN listener
+            TVWaitQueueLANListener tvWaitingQueueLANListener = TVWaitQueueLANListener.getExistingInstance();
+
+            // If a lan listener is running
+            if(tvWaitingQueueLANListener != null) {
+                tvWaitingQueueLANListener.stopServer();
+            }
+
+            // Stop the LAN listener service
+            stopService(new Intent(this, TVWaitQueueService.class));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Method to determine if service is running
+     *
+     * @param serviceClass
+     * @return
+     */
+    public boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get the running service class
+     *
+     * @param serviceClass
+     * @return
+     */
+    private Object getRunningService(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return serviceClass;
+            }
+        }
+        return null;
     }
 
     /**

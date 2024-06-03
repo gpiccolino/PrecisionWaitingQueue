@@ -72,27 +72,96 @@ public class StationProfileBean implements Serializable {
         this.timestampNewInsert = timestampNewInsert;
     }
 
-    // Not part of JSON
+    //----------------------- Not part of JSON --------------------------------------//
+
+    /**
+     * Getter for the licenseid
+     * @return
+     */
     public long getLicenseid() {
         return this.licenseid;
     }
 
+    /**
+     * Setter for the licenseid
+     * @return
+     */
     public void setLicenseid(long licenseid) {
         this.licenseid = licenseid;
     }
 
     long licenseid;
 
-    // Not part of JSON
+    /**
+     * Is this the default profile
+     * @return
+     */
     public boolean getIsDefaultProfile() {
         return this.isDefaultProfile;
     }
 
+    /**
+     * Set as default profile
+     * @return
+     */
     public void setIsDefaultProfile(boolean isDefaultProfile) {
         this.isDefaultProfile = isDefaultProfile;
     }
 
     boolean isDefaultProfile = false;
+
+    /**
+     * Getter for the username
+     * @return
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * Setter for the username
+     * @return
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    String username = "";
+
+    /**
+     * Getter for the password
+     * @return
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * Setter for the password
+     * @return
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    String password = "";
+
+    /**
+     * Getter for the endpoint
+     * @return
+     */
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    /**
+     * Setter for the endpoint
+     * @param enpoint
+     */
+    public void setEndpoint(String enpoint) {
+        this.endpoint = endpoint;
+    }
+
+    String endpoint;
+    //----------------------- END Not part of JSON -----------------------------------//
 
     @JsonProperty("opsuccess")
     public boolean getOpsuccess() {

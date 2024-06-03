@@ -59,8 +59,13 @@ public class StationProfileConfigSession implements Serializable {
 
 	/**
 	 * Persist the station bean to the file system
+	 * @param myProfile
 	 */
-	public static void persistStationBean() {
+	public static void persistStationBean(StationProfileBean myProfile) {
+		// Save the latest in static
+		profileDetailsBean = myProfile;
+
+		// Persist to the database
 		FileSystemObjectSerializer fsor = FileSystemObjectSerializer.getInstance();
 		fsor.persistObjectToFileSystem(profileDetailsBean,  STATION_CONFIG_FILENAME);
 	}

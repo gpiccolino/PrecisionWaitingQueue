@@ -3,8 +3,11 @@ package com.precisionpos.tv.waitingqueue.communication;
 import android.content.Context;
 import android.util.Log;
 
+import com.precisionpos.tv.waitingqueue.beans.StationProfileBean;
 import com.precisionpos.tv.waitingqueue.beans.StationTVProfileCommandBean;
 import com.precisionpos.tv.waitingqueue.beans.StationTVProfileSetterBean;
+import com.precisionpos.tv.waitingqueue.utils.EncryptString;
+import com.precisionpos.tv.waitingqueue.utils.StationProfileConfigSession;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -65,20 +68,67 @@ public class TVWaitQueueLANListener extends MultipleSocketObjectServer {
 
         // Sent from the point of sale to set the tv station
         if(obj instanceof StationTVProfileSetterBean) {
+            try {
+                StationTVProfileSetterBean profile = (StationTVProfileSetterBean) obj;
+                String sBusinessID      = EncryptString.getInstance().decrypt(String.valueOf(profile.getEncryptedBusinessID()));
+                String sStoreFrontCD    = EncryptString.getInstance().decrypt(String.valueOf(profile.getEncryptedStoreFrontCD()));
 
+                // The credentials to call the webservice
+                int businessID      = Integer.valueOf(sBusinessID);
+                int storeFrontCD    = Integer.valueOf(sStoreFrontCD);
+
+                // Username and password
+                String userName     = EncryptString.getInstance().decrypt(profile.getEncryptedConnectionUsername());
+                String password     = EncryptString.getInstance().decrypt(profile.getEncryptedConnectionPassword());
+                String endPoint     = EncryptString.getInstance().decrypt(profile.getEncryptedConnectionURL());
+
+                // @TODO
+                // Call the service
+                StationProfileBean wsStationProfileBean = null; // REPLACE WITH JSON CALL
+
+                if(wsStationProfileBean != null) {
+                    wsStationProfileBean.setUsername(userName);
+                    wsStationProfileBean.setPassword(password);
+                    wsStationProfileBean.setEndpoint(endPoint);
+
+                    // Persist the results to the private file system
+                    StationProfileConfigSession.persistStationBean(wsStationProfileBean);
+                }
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
         }
         // Commands sent to the tv profile
         else if(obj instanceof StationTVProfileCommandBean) {
             StationTVProfileCommandBean scb = (StationTVProfileCommandBean)obj;
 
+            // Username and password
+            String userName     = EncryptString.getInstance().decrypt(scb.getEncryptedConnectionUsername());
+            String password     = EncryptString.getInstance().decrypt(scb.getEncryptedConnectionPassword());
+
+            // Compare to the ones safed in session
+            StationProfileBean profileBean = StationProfileConfigSession.getProfileDetailsBean();
+
+            // Make sure the username and password from the point of sale
+            // matches the one saved in the session
+            if(!userName.equals(profileBean.getUsername()) ||
+                !password.equals(profileBean.getPassword())) {
+
+                return; // failed so return
+            }
+
+            // @TODO
             // Refresh the content
             if(scb.getCommandType() == StationTVProfileCommandBean.COMMAND_REFRESH) {
 
             }
+            // @TODO
             // Set the TV Waiting Queue as Active
             else if(scb.getCommandType() == StationTVProfileCommandBean.COMMAND_SETACTIVE) {
 
             }
+            // @TODO
             // Set the TV Waiting Queue as Inactive
             else if(scb.getCommandType() == StationTVProfileCommandBean.COMMAND_SETINACTIVE) {
 

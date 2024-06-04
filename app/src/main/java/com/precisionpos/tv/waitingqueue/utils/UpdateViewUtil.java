@@ -32,7 +32,8 @@ import java.util.TimerTask;
  */
 public class UpdateViewUtil {
 
-    private final String endpointURL = "https://olo2.o-ez.com/PrecisionAppConnector/apptvwaitingqueuedata";
+    private String endpointURL = "https://olo2.o-ez.com/PrecisionAppConnector/apptvwaitingqueuedata";
+//    private String endpointURL = "http://192.168.5.136:8075/PrecisionAppConnector/apptvwaitingqueuedata";
     //private final String endpointURL = "https://34.138.42.223/PrecisionAppConnector/apptvwaitingqueuedata";
     private String requestBeanStr;
     private String responseMessage;
@@ -63,7 +64,6 @@ public class UpdateViewUtil {
 
     // Credentials to call the webservice
     private TVWaitQueueRequestBean requestBean = new TVWaitQueueRequestBean();
-    private String endpoint;
 
     // Our singleton
     private static UpdateViewUtil singleton;
@@ -103,7 +103,15 @@ public class UpdateViewUtil {
         requestBean.setStoreFrontCD(profileBean.getStoreFrontCD());
 
         // Set the endpoint
-        endpoint        = profileBean.getEndpoint();
+        endpointURL        = profileBean.getEndpoint();
+
+
+        // @TODO REMOVE
+        // For testing only
+        endpointURL = "https://olo2.o-ez.com/PrecisionAppConnector/apptvwaitingqueuedata";
+        requestBean.setStationcode(1672849310372l);
+        requestBean.setLicenseid(1672849310372l);
+        requestBean.setUsername("GINO P");
     }
     /**
      * Method to send request and update orders from response
@@ -120,7 +128,7 @@ public class UpdateViewUtil {
             // This means there is no license
             if(requestBean.getLicenseid() == 0 || requestBean.getUsername() == null ||
                     requestBean.getUsername().trim().length() == 0 ||
-                    endpoint == null || endpoint.trim().length() > 5) {
+                    endpointURL == null || endpointURL.trim().length() < 5) {
                 // @TODO update the UI with instructions
             }
             // Flag to know if update is already in progress

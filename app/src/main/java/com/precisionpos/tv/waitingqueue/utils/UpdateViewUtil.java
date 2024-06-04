@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.precisionpos.tv.waitingqueue.MainActivity;
 import com.precisionpos.tv.waitingqueue.app.TVWaitQueueApplication;
 import com.precisionpos.tv.waitingqueue.beans.ListOrder;
+import com.precisionpos.tv.waitingqueue.beans.StationProfileBean;
 import com.precisionpos.tv.waitingqueue.beans.TVWaitQueueRequestBean;
 import com.precisionpos.tv.waitingqueue.beans.TVWaitQueueResponseBean;
 import com.precisionpos.tv.waitingqueue.communication.CommunicationUtils;
@@ -57,8 +58,53 @@ public class UpdateViewUtil {
     private long lastFulfilledTime;
     private Context context;
 
-    public UpdateViewUtil() { }
+    // Keep track of running task
+    private boolean isRunning = false;
 
+    // Credentials to call the webservice
+    private TVWaitQueueRequestBean requestBean = new TVWaitQueueRequestBean();
+    private String endpoint;
+
+    // Our singleton
+    private static UpdateViewUtil singleton;
+
+    /**
+     * Private constructor enforces singleton
+     */
+    private UpdateViewUtil() {}
+
+    /**
+     * Factory method to get singleton
+     * @return
+     */
+    public static UpdateViewUtil getInstance() {
+        if (singleton == null) {
+            singleton = new UpdateViewUtil();
+            singleton.loadCredentials();
+        }
+        return singleton;
+    }
+
+
+    /**
+     * This method is used to pull the credentials saved
+     * in the file system and sets them globally to this class
+     *
+     */
+    public void loadCredentials() {
+        // Get the station profile bean
+        StationProfileBean profileBean = StationProfileConfigSession.getProfileDetailsBean();
+
+        // The credentials to call the webservice
+        requestBean.setUsername(profileBean.getUsername());
+        requestBean.setPassword(profileBean.getPassword());
+        requestBean.setLicenseid(profileBean.getLicenseid());
+        requestBean.setBusinessid(profileBean.getBusinessID());
+        requestBean.setStoreFrontCD(profileBean.getStoreFrontCD());
+
+        // Set the endpoint
+        endpoint        = profileBean.getEndpoint();
+    }
     /**
      * Method to send request and update orders from response
      */
@@ -69,215 +115,229 @@ public class UpdateViewUtil {
         orderWaitList = new ArrayList<>();
         orderReadyList = new ArrayList<>();
 
+
         try {
+            // This means there is no license
+            if(requestBean.getLicenseid() == 0 || requestBean.getUsername() == null ||
+                    requestBean.getUsername().trim().length() == 0 ||
+                    endpoint == null || endpoint.trim().length() > 5) {
+                // @TODO update the UI with instructions
+            }
             // Flag to know if update is already in progress
-            TVWaitQueueApplication.isRunning = true;
-            System.out.println("UTIL START : CURWAITPG: " + currentWaitPage);
+            else if(!isRunning) {
+                isRunning = true; // flag that we are running
 
-            // Set the tv Android ID
-            //((MainActivity) TVWaitQueueApplication.getCurrentActvity()).setAndroidID("ID: " + getAndroidID());
+                System.out.println("UTIL START : CURWAITPG: " + currentWaitPage);
 
-            // Set the tv station code
-            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("CD: " + getStationCD());
+                // Set the tv Android ID
+                //((MainActivity) TVWaitQueueApplication.getCurrentActvity()).setAndroidID("ID: " + getAndroidID());
 
-            // Set the tv IP address
-            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setIPAddress(getIPAddress(true));
+                // Set the tv station code
+                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("CD: " + getStationCD());
 
-            // Set the tv version code
-            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setVersionCD("Version " + getVersionCodeName());
+                // Set the tv IP address
+                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setIPAddress(getIPAddress(true));
 
-            // Set the tv connection status
-            //((MainActivity) TVWaitQueueApplication.getCurrentActvity()).setConnectionStatus(getIsWifi(), getIsLAN());
+                // Set the tv version code
+                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setVersionCD("Version " + getVersionCodeName());
 
-            // Create JSON request
-            TVWaitQueueRequestBean requestBean = new TVWaitQueueRequestBean(getStationCD(),
-                    getLastUpdateTimeStamp());
+                // Set the tv connection status
+                //((MainActivity) TVWaitQueueApplication.getCurrentActvity()).setConnectionStatus(getIsWifi(), getIsLAN());
 
-            // Convert request object to String
-            Gson gson = new Gson();
-            requestBeanStr = gson.toJson(requestBean);
-            System.out.println("REQUEST MESSAGE: " + requestBeanStr);
+                // Create JSON request
+//                TVWaitQueueRequestBean requestBean = new TVWaitQueueRequestBean(getStationCD(),
+//                        getLastUpdateTimeStamp());
+                // Create JSON request
+                requestBean.setLastUpdateTimestamp(getLastUpdateTimeStamp());
 
-            // Send request for orders and get response
-            responseMessage = CommunicationUtils.sendRequest(requestBeanStr, endpointURL, 1);
+                // Convert request object to String
+                Gson gson = new Gson();
+                requestBeanStr = gson.toJson(requestBean);
+                System.out.println("REQUEST MESSAGE: " + requestBeanStr);
 
-            // Create parser and process response message
-            parser = new TVWaitQueueResponseParser();
-            responseBean = parser.parse(responseMessage);
+                // Send request for orders and get response
+                responseMessage = CommunicationUtils.sendRequest(requestBeanStr, endpointURL, 1);
 
-            // Get the store name from response
-            String storeName = responseBean.getStationProfile().getStoreName();
+                // Create parser and process response message
+                parser = new TVWaitQueueResponseParser();
+                responseBean = parser.parse(responseMessage);
 
-            // Set the tv store name
-            if (storeName != null) {
-                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStoreName(storeName);
-            }
+                // Get the store name from response
+                String storeName = responseBean.getStationProfile().getStoreName();
 
-            // Get the station code from response
-            Long stationCD = responseBean.getStationProfile().getStationCode();
-
-            // Set the station code
-            if (stationCD != null) {
-                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("CD: " + stationCD);
-            }
-            else {
-                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("");
-            }
-
-            // Get the store message from response
-            String storeMessage = responseBean.getStationProfile().getTvMessage();
-
-            // Set the tv store message
-            if (storeMessage != null) {
-                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStoreMessage(storeMessage);
-            }
-
-            // Get list of orders from response
-            if (responseBean.getListOrders() != null) {
-                orderList = responseBean.getListOrders();
-            }
-
-            // Get profile filters
-            profileType = responseBean.getStationProfile().getWaitingQueueProfileType();
-            displayKioskOrders = responseBean.getStationProfile().getDisplayKioskOrders();
-            displayOnlineOrders = responseBean.getStationProfile().getDisplayOLOOrders();
-            displayThirdPartyOrders = responseBean.getStationProfile().getDisplayThirdPartyOrders();
-
-            // Loop through all orders
-            for (ListOrder orderBean : orderList) {
-
-                // Filter orders based on profile type
-                if (profileType == 0) { // 0 = All Order Types
-                    filteredOrderList.add(orderBean);
+                // Set the tv store name
+                if (storeName != null) {
+                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStoreName(storeName);
                 }
-                if (profileType == 1) { // 1 = Pickup only
-                    if (orderBean.getOrderType() == 1) {
+
+                // Get the station code from response
+                Long stationCD = responseBean.getStationProfile().getStationCode();
+
+                // Set the station code
+                if (stationCD != null) {
+                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("CD: " + stationCD);
+                } else {
+                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("");
+                }
+
+                // Get the store message from response
+                String storeMessage = responseBean.getStationProfile().getTvMessage();
+
+                // Set the tv store message
+                if (storeMessage != null) {
+                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStoreMessage(storeMessage);
+                }
+
+                // Get list of orders from response
+                if (responseBean.getListOrders() != null) {
+                    orderList = responseBean.getListOrders();
+                }
+
+                // Get profile filters
+                profileType = responseBean.getStationProfile().getWaitingQueueProfileType();
+                displayKioskOrders = responseBean.getStationProfile().getDisplayKioskOrders();
+                displayOnlineOrders = responseBean.getStationProfile().getDisplayOLOOrders();
+                displayThirdPartyOrders = responseBean.getStationProfile().getDisplayThirdPartyOrders();
+
+                // Loop through all orders
+                for (ListOrder orderBean : orderList) {
+
+                    // Filter orders based on profile type
+                    if (profileType == 0) { // 0 = All Order Types
                         filteredOrderList.add(orderBean);
                     }
-                }
-                if (profileType == 2) { // 2 = Dine in only
-                    if (orderBean.getOrderType() == 3) {
-                        filteredOrderList.add(orderBean);
+                    if (profileType == 1) { // 1 = Pickup only
+                        if (orderBean.getOrderType() == 1) {
+                            filteredOrderList.add(orderBean);
+                        }
+                    }
+                    if (profileType == 2) { // 2 = Dine in only
+                        if (orderBean.getOrderType() == 3) {
+                            filteredOrderList.add(orderBean);
+                        }
+                    }
+                    if (profileType == 3) { // 3 = Delivery only
+                        if (orderBean.getOrderType() == 2) {
+                            filteredOrderList.add(orderBean);
+                        }
+                    }
+                    if (profileType == 4) { // 4 = Pickup & Delivery
+                        if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 2) {
+                            filteredOrderList.add(orderBean);
+                        }
+                    }
+                    if (profileType == 5) { // 5 = Pickup & Dine in
+                        if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 3) {
+                            filteredOrderList.add(orderBean);
+                        }
+                    }
+                    if (profileType == 6) { // 6 = Dine in & Delivery
+                        if (orderBean.getOrderType() == 2 || orderBean.getOrderType() == 3) {
+                            filteredOrderList.add(orderBean);
+                        }
                     }
                 }
-                if (profileType == 3) { // 3 = Delivery only
-                    if (orderBean.getOrderType() == 2) {
-                        filteredOrderList.add(orderBean);
+
+                // Filter kiosk orders
+                if (!displayKioskOrders) {
+                    filteredOrderList = filterKioskOrders(filteredOrderList);
+                }
+                // Filter online orders
+                if (!displayOnlineOrders) {
+                    filteredOrderList = filterOnlineOrders(filteredOrderList);
+                }
+                // Filter third party orders
+                if (!displayThirdPartyOrders) {
+                    filteredOrderList = filterThirdPartyOrders(filteredOrderList);
+                }
+
+                // Add orders to appropriate list
+                for (ListOrder order : filteredOrderList) {
+                    // If order was marked as fulfilled
+                    if (order.getOrderFulfilledDateAsLong() > 0) {
+                        // If fulfilled date is greater than the last
+                        if (order.getOrderFulfilledDateAsLong() > lastFulfilledTime) {
+                            // Update last fulfilled time
+                            lastFulfilledTime = order.getOrderFulfilledDateAsLong();
+                            // Show toast notification
+                            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).showToast(order.getTicketNumber(), order.getGuestName());
+                        }
+                        // Add it to the ready list
+                        orderReadyList.add(order);
+                    } else if (order.getOrderFulfilledDateAsLong() == 0) { // Add to wait list
+                        orderWaitList.add(order);
+                    } else {
+                        // negative or null
                     }
                 }
-                if (profileType == 4) { // 4 = Pickup & Delivery
-                    if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 2) {
-                        filteredOrderList.add(orderBean);
-                    }
+
+                // Create paginator to separate order lists into pages
+                PaginatorUtil paginatorWait = new PaginatorUtil(orderWaitList);
+                PaginatorUtil paginatorReady = new PaginatorUtil(orderReadyList);
+
+                // Calculate number of wait pages
+                totalWaitPages = orderWaitList.size() / paginatorWait.getItemsPerPage();
+                if (orderWaitList.size() % paginatorWait.getItemsPerPage() > 0) {
+                    totalWaitPages++;
                 }
-                if (profileType == 5) { // 5 = Pickup & Dine in
-                    if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 3) {
-                        filteredOrderList.add(orderBean);
-                    }
+                if (totalWaitPages > 0) {
+                    totalWaitPages -= 1;
                 }
-                if (profileType == 6) { // 6 = Dine in & Delivery
-                    if (orderBean.getOrderType() == 2 || orderBean.getOrderType() == 3) {
-                        filteredOrderList.add(orderBean);
-                    }
+
+                // Calculate number of ready pages
+                totalReadyPages = orderReadyList.size() / paginatorReady.getItemsPerPage();
+                if (orderReadyList.size() % paginatorReady.getItemsPerPage() > 0) {
+                    totalReadyPages++;
                 }
-            }
-
-            // Filter kiosk orders
-            if (!displayKioskOrders) {
-                filteredOrderList = filterKioskOrders(filteredOrderList);
-            }
-            // Filter online orders
-            if (!displayOnlineOrders) {
-                filteredOrderList = filterOnlineOrders(filteredOrderList);
-            }
-            // Filter third party orders
-            if (!displayThirdPartyOrders) {
-                filteredOrderList = filterThirdPartyOrders(filteredOrderList);
-            }
-
-            // Add orders to appropriate list
-            for (ListOrder order : filteredOrderList) {
-                // If order was marked as fulfilled
-                if (order.getOrderFulfilledDateAsLong() > 0) {
-                    // If fulfilled date is greater than the last
-                    if (order.getOrderFulfilledDateAsLong() > lastFulfilledTime) {
-                        // Update last fulfilled time
-                        lastFulfilledTime = order.getOrderFulfilledDateAsLong();
-                        // Show toast notification
-                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).showToast(order.getTicketNumber(), order.getGuestName());
-                    }
-                    // Add it to the ready list
-                    orderReadyList.add(order);
+                if (totalReadyPages > 0) {
+                    totalReadyPages -= 1;
                 }
-                else if (order.getOrderFulfilledDateAsLong() == 0) { // Add to wait list
-                    orderWaitList.add(order);
-                }
-                else {
-                    // negative or null
-                }
-            }
 
-            // Create paginator to separate order lists into pages
-            PaginatorUtil paginatorWait = new PaginatorUtil(orderWaitList);
-            PaginatorUtil paginatorReady = new PaginatorUtil(orderReadyList);
+                // Update tv counters
+                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).updateWaitListCounter(orderWaitList);
+                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).updateReadyListCounter(orderReadyList);
 
-            // Calculate number of wait pages
-            totalWaitPages = orderWaitList.size() / paginatorWait.getItemsPerPage();
-            if (orderWaitList.size() % paginatorWait.getItemsPerPage() > 0) {
-                totalWaitPages++;
-            }
-            if (totalWaitPages > 0) {
-                totalWaitPages-=1;
-            }
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        // Update tv lists
+                        if (currentWaitPage <= totalWaitPages) {
+                            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setWaitListAdapter(paginatorWait.generatePage(currentWaitPage));
+                            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getWaitListAdapter().setOffset(currentWaitPage * paginatorWait.getItemsPerPage());
+                            currentWaitPage += 1;
+                        }
+                        if (currentReadyPage <= totalReadyPages) {
+                            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setReadyListAdapter(paginatorReady.generatePage(currentReadyPage));
+                            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getReadyListAdapter().setOffset(currentReadyPage * paginatorReady.getItemsPerPage());
+                            currentReadyPage += 1;
+                        }
 
-            // Calculate number of ready pages
-            totalReadyPages = orderReadyList.size()  / paginatorReady.getItemsPerPage();
-            if (orderReadyList.size() % paginatorReady.getItemsPerPage() > 0) {
-                totalReadyPages++;
-            }
-            if (totalReadyPages > 0) {
-                totalReadyPages-=1;
-            }
+                        // Cancel timer once all pages are displayed
+                        if ((currentWaitPage > totalWaitPages || totalWaitPages == 0) &&
+                                (currentReadyPage > totalReadyPages || totalReadyPages == 0)) {
+                            // Mark end of updates
+                            isRunning = false;
+                            System.out.println("UTIL END");
 
-            // Update tv counters
-            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).updateWaitListCounter(orderWaitList);
-            ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).updateReadyListCounter(orderReadyList);
+                            // Cancel timer thread
+                            timer.cancel();
 
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    // Update tv lists
-                    if (currentWaitPage <= totalWaitPages ) {
-                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setWaitListAdapter(paginatorWait.generatePage(currentWaitPage));
-                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getWaitListAdapter().setOffset(currentWaitPage * paginatorWait.getItemsPerPage());
-                        currentWaitPage+=1;
+                            // Return to show first page of orders
+                            currentWaitPage = 0;
+                            currentReadyPage = 0;
+                        }
                     }
-                    if (currentReadyPage <= totalReadyPages) {
-                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setReadyListAdapter(paginatorReady.generatePage(currentReadyPage));
-                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getReadyListAdapter().setOffset(currentReadyPage * paginatorReady.getItemsPerPage());
-                        currentReadyPage+=1;
-                    }
-
-                    // Cancel timer once all pages are displayed
-                    if ((currentWaitPage > totalWaitPages || totalWaitPages == 0) &&
-                            (currentReadyPage > totalReadyPages || totalReadyPages == 0)) {
-                        // Mark end of updates
-                        TVWaitQueueApplication.isRunning = false;
-                        System.out.println("UTIL END");
-
-                        // Cancel timer thread
-                        timer.cancel();
-
-                        // Return to show first page of orders
-                        currentWaitPage = 0;
-                        currentReadyPage = 0;
-                    }
-                }
-            }, 0,5000); // delay 5 seconds
+                }, 0, 5000); // delay 5 seconds
+            }
+            // No longer running
+            isRunning = false;
         }
         catch (Exception e) {
             e.printStackTrace();
+
+            // No longer running
+            isRunning = false;
         }
     }
 

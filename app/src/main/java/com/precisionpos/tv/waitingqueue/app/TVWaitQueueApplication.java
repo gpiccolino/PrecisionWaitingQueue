@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import com.precisionpos.tv.waitingqueue.beans.StationProfileBean;
 import com.precisionpos.tv.waitingqueue.communication.TVWaitQueueLANListener;
 import com.precisionpos.tv.waitingqueue.service.TVWaitQueueService;
+import com.precisionpos.tv.waitingqueue.utils.StationProfileConfigSession;
 import com.precisionpos.tv.waitingqueue.utils.UpdateViewUtil;
 
 import java.util.Timer;
@@ -23,7 +24,7 @@ import java.util.TimerTask;
  */
 public class TVWaitQueueApplication extends Application {
 
-    public static boolean isRunning;
+//    public static boolean isRunning;
     public static boolean isTerminated;
     private static Context context;
     private static Activity currentActivity;
@@ -54,7 +55,7 @@ public class TVWaitQueueApplication extends Application {
 //        poslanListener.startServer();
 
         // Timer to check for new orders
-        util = new UpdateViewUtil();
+        util = UpdateViewUtil.getInstance();
 
         // Create new timer task to update TV
         updateTV();
@@ -62,6 +63,15 @@ public class TVWaitQueueApplication extends Application {
         // Start the tv waiting queue service
         startTVWaitQueueService();
         setBroadcastReceiver();
+
+        // Create a license id if necessary
+        StationProfileBean profileBean = StationProfileConfigSession.getProfileDetailsBean();
+        if(profileBean.getLicenseid() == 0) {
+            profileBean.setLicenseid(System.currentTimeMillis());
+
+            // Persist the changes
+            StationProfileConfigSession.persistStationBean(profileBean);
+        }
 
     }
 
@@ -73,9 +83,10 @@ public class TVWaitQueueApplication extends Application {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (!isRunning) { // Don't update tv if already in progress
-                    util.updateTV();
-                }
+                util.updateTV();
+//                if (!isRunning) { // Don't update tv if already in progress
+//                    util.updateTV();
+//                }
             }
             @Override
             public void finalize() throws Throwable {

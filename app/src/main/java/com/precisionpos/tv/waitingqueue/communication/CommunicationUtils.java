@@ -76,8 +76,8 @@ public class CommunicationUtils {
             //allowMethods("PATCH", "DELETE");
 
             // Create the connection
-//			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             switch (httpMethod) {
                 case 1: connection.setRequestMethod("POST");
                     break;

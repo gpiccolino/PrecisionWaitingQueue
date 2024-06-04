@@ -154,9 +154,9 @@ public class StationProfileBean implements Serializable {
 
     /**
      * Setter for the endpoint
-     * @param enpoint
+     * @param endpoint
      */
-    public void setEndpoint(String enpoint) {
+    public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
 

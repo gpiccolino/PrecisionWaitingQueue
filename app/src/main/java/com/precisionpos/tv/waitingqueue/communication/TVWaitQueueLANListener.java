@@ -4,14 +4,15 @@ import android.content.Context;
 import android.util.Log;
 
 import com.precisionpos.tv.waitingqueue.beans.StationProfileBean;
-import com.precisionpos.tv.waitingqueue.beans.StationTVProfileCommandBean;
-import com.precisionpos.tv.waitingqueue.beans.StationTVProfileSetterBean;
 import com.precisionpos.tv.waitingqueue.utils.EncryptString;
 import com.precisionpos.tv.waitingqueue.utils.StationProfileConfigSession;
 import com.precisionpos.tv.waitingqueue.utils.UpdateViewUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import com.precisionpos.tv.waitingqueue.beans.StationTVProfileSetterBean;
+import com.precisionpos.tv.waitingqueue.beans.StationTVProfileCommandBean;
 
 /**
  * This class is used to listen for TV Waiting Queue Events
@@ -77,12 +78,15 @@ public class TVWaitQueueLANListener extends MultipleSocketObjectServer {
 
                 // The profile data sent from the POS
                 StationTVProfileSetterBean profile = (StationTVProfileSetterBean) obj;
-                String sBusinessID      = EncryptString.getInstance().decrypt(String.valueOf(profile.getEncryptedBusinessID()));
-                String sStoreFrontCD    = EncryptString.getInstance().decrypt(String.valueOf(profile.getEncryptedStoreFrontCD()));
+//                String sBusinessID      = EncryptString.getInstance().decrypt(String.valueOf(profile.getEncryptedBusinessID()));
+//                String sStoreFrontCD    = EncryptString.getInstance().decrypt(String.valueOf(profile.getEncryptedStoreFrontCD()));
+//
+//                // The credentials to call the webservice
+//                int businessID      = Integer.valueOf(sBusinessID);
+//                int storeFrontCD    = Integer.valueOf(sStoreFrontCD);
 
-                // The credentials to call the webservice
-                int businessID      = Integer.valueOf(sBusinessID);
-                int storeFrontCD    = Integer.valueOf(sStoreFrontCD);
+                int businessID        = profile.getEncryptedBusinessID();
+                int storeFrontCD      = profile.getEncryptedStoreFrontCD();
 
                 // Username and password
                 String userName     = EncryptString.getInstance().decrypt(profile.getEncryptedConnectionUsername());

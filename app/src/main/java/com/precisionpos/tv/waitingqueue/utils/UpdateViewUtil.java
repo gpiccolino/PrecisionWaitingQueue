@@ -99,6 +99,7 @@ public class UpdateViewUtil {
         requestBean.setUsername(profileBean.getUsername());
         requestBean.setPassword(profileBean.getPassword());
         requestBean.setLicenseid(profileBean.getLicenseid());
+        requestBean.setStationcode(profileBean.getLicenseid());
         requestBean.setBusinessid(profileBean.getBusinessID());
         requestBean.setStoreFrontCD(profileBean.getStoreFrontCD());
 
@@ -106,12 +107,12 @@ public class UpdateViewUtil {
         endpointURL        = profileBean.getEndpoint();
 
 
-        // @TODO REMOVE
-        // For testing only
-        endpointURL = "https://olo2.o-ez.com/PrecisionAppConnector/apptvwaitingqueuedata";
-        requestBean.setStationcode(1672849310372l);
-        requestBean.setLicenseid(1672849310372l);
-        requestBean.setUsername("GINO P");
+//        // @TODO REMOVE
+//        // For testing only
+//        endpointURL = "https://olo2.o-ez.com/PrecisionAppConnector/apptvwaitingqueuedata";
+//        requestBean.setStationcode(1672849310372l);
+//        requestBean.setLicenseid(1672849310372l);
+//        requestBean.setUsername("GINO P");
     }
     /**
      * Method to send request and update orders from response
@@ -141,7 +142,7 @@ public class UpdateViewUtil {
                 //((MainActivity) TVWaitQueueApplication.getCurrentActvity()).setAndroidID("ID: " + getAndroidID());
 
                 // Set the tv station code
-                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("CD: " + getStationCD());
+                ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setStationCD("CD: " + requestBean.getLicenseid());
 
                 // Set the tv IP address
                 ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setIPAddress(getIPAddress(true));

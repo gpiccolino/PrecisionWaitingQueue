@@ -142,7 +142,7 @@ public abstract class MultipleSocketObjectServer {
                 if (obj instanceof StationTVProfileSetterBean) {
                     processRequest(obj); // Process LANListener request
                 }
-				else if (obj instanceof StationTVProfileCommandBean) {
+                else if (obj instanceof StationTVProfileCommandBean) {
                     // Processes the request and sends back a response
                     processRequest(obj);
                 }

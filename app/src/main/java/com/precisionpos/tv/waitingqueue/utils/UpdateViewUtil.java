@@ -330,8 +330,6 @@ public class UpdateViewUtil {
                     }
                 }, 0, 5000); // delay 5 seconds
             }
-            // No longer running
-            isRunning = false;
         }
         catch (Exception e) {
             e.printStackTrace();

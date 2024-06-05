@@ -37,6 +37,9 @@ public class TVWaitQueueApplication extends Application {
     // Callback event for service
     public static final String BROADCAST_TVWAITINGQUEUELISTENER_DESTROY   = "broadcast-tvwaitingqueue-destroy";
 
+    // Auto update frequency
+    private long updateFrequency = 1000 * 60 * 5; // Every 5 minutes
+
     // Constructor
     public TVWaitQueueApplication() {
         super();
@@ -95,7 +98,7 @@ public class TVWaitQueueApplication extends Application {
                     updateTV(); // call new timer task if GC cleaned it up
                 }
             }
-        }, 5000,5000); // delay 5 seconds
+        }, 5000,updateFrequency); // delay
     }
 
     /**

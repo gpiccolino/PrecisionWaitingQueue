@@ -1,5 +1,6 @@
 package com.precisionpos.tv.waitingqueue;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -59,21 +60,21 @@ public class MainActivity extends BaseActivity {
      * @param guestName The guest name on the ticket number that was marked ready
      */
     public void showToast(int ticketNumber, String guestName) {
-        runOnUiThread(() -> {
-            // Set toast text
-            Toast toast = Toast.makeText(MainActivity.this, "Ticket #" + ticketNumber +
-                    " for " + guestName + " is ready for pickup!", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER, 15, 15);
-            // Get toast view
-            View view = toast.getView();
-            // Set toast background
-            view.getBackground().setColorFilter(Color.parseColor("#c9f1fd"), PorterDuff.Mode.DARKEN);
-            // Show toast
-            toast.show();
-
-            Handler handler = new Handler();
-            handler.postDelayed(toast::cancel, 8000); // Close toast after 8 seconds
-        });
+//        runOnUiThread(() -> {
+//            // Set toast text
+//            Toast toast = Toast.makeText(MainActivity.this, "Ticket #" + ticketNumber +
+//                    " for " + guestName + " is ready for pickup!", Toast.LENGTH_LONG);
+//            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER, 15, 15);
+//            // Get toast view
+//            View view = toast.getView();
+//            // Set toast background
+//            view.getBackground().setColorFilter(Color.parseColor("#c9f1fd"), PorterDuff.Mode.DARKEN);
+//            // Show toast
+//            toast.show();
+//
+//            Handler handler = new Handler();
+//            handler.postDelayed(toast::cancel, 8000); // Close toast after 8 seconds
+//        });
     }
 
     /**
@@ -169,5 +170,28 @@ public class MainActivity extends BaseActivity {
             TextView tvWaitCounter = findViewById(R.id.tv_ready_counter);
             tvWaitCounter.setText(String.valueOf(orderReadyList.size()));
         });
+    }
+
+
+    /**
+     * Open up the android settings
+     */
+    @Override
+    public void onBackPressed() {
+        this.processAndroidSetting();
+    }
+
+    /**
+     * Go to the android settings
+     */
+    public void processAndroidSetting() {
+        Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+
+        try {
+            // Start the activity, the intent will be populated with the speech text
+            startActivityForResult(intent, 100);
+        } catch (Exception e) {
+            e.printStackTrace();;
+        }
     }
 }

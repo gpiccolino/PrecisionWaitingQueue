@@ -100,7 +100,7 @@ public class TVWaitQueueRequestBean {
     }
 
     public void setBusinessid(int businessID) {
-        this.businessid = businessid;
+        this.businessid = businessID;
     }
 
     int businessid;
@@ -111,7 +111,7 @@ public class TVWaitQueueRequestBean {
     }
 
     public void setStoreFrontCD(int storeFrontCD) {
-        this.storefrontcd = storefrontcd;
+        this.storefrontcd = storeFrontCD;
     }
 
     int storefrontcd;

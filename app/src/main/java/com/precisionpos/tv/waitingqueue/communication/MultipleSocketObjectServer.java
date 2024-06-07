@@ -21,6 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 /**
  * Multiple socket server object server
@@ -29,11 +30,17 @@ import java.net.Socket;
  */
 //public abstract class MultipleSocketObjectServer {
 public abstract class MultipleSocketObjectServer {
-    /* The default port */
+    // The default port
     private int port = 7778;
 
-    /* Kills the socket listener */
+    // Kills the socket listener
     protected boolean socketActive = false;
+
+    // Track the last restart time
+    private long lastRestart    = 0;
+
+    // Restart the server every hour
+    private int restartInterval = 1000 * 60 * 60;
 
     /**
      * Constructor with PORT
@@ -52,21 +59,23 @@ public abstract class MultipleSocketObjectServer {
         Thread thread = new Thread(new Runnable() {
             public void run() {
                 ServerSocket socket = null;
+
                 try {
                     socketActive = true;
                     socket = new ServerSocket(port);
+                    socket.setSoTimeout(restartInterval);
 
                     while (true && socketActive) {
 
                         Socket connection = socket.accept();
-                        // connection.setReuseAddress(true);
+
                         Runnable runnable = new ServerSocketResponder(connection);
                         Thread thread = new Thread(runnable);
                         thread.start();
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     Log.e("Start Server Message", e.getMessage());
-                    socketActive = false;
                 }
 
                 if (socket != null) {
@@ -75,6 +84,26 @@ public abstract class MultipleSocketObjectServer {
                     } catch (IOException e) {
                         Log.e("Start Server Message2", e.getMessage());
                     }
+                }
+
+                // @since 06/07/24
+                // Make sure the socket was still active and the
+                // the last restart was greater than 60 seconds ago
+                // We don't want to get caught in an infinite loop
+                boolean bRestart    = (System.currentTimeMillis() - lastRestart) > 60000;
+                lastRestart         = System.currentTimeMillis();
+
+                if(socketActive && bRestart) {
+                    startServer();
+                    return;
+                }
+            }
+
+            @Override
+            public void finalize() throws Throwable {
+                super.finalize();
+                if(socketActive) {
+                    startServer();
                 }
             }
 

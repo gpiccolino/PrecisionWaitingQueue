@@ -20,6 +20,11 @@ public class PaginatorUtil {
         TOTAL_ITEMS = orderList.size();
         this.orderList = orderList;
     }
+    public PaginatorUtil() {}
+
+    public void setOrderList(List<ListOrder> orderList) {
+        this.orderList = orderList;
+    }
 
     public List<ListOrder> generatePage(int currentPage) {
 

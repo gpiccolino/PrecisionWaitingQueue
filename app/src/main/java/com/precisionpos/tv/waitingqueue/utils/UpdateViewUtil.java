@@ -60,13 +60,17 @@ public class UpdateViewUtil {
     private Context context;
 
     // Keep track of running task
-    private boolean isRunning = false;
+//    private boolean isRunning = false;
 
     // Credentials to call the webservice
     private TVWaitQueueRequestBean requestBean = new TVWaitQueueRequestBean();
 
+    private PaginatorUtil paginatorWait = new PaginatorUtil();
+    private PaginatorUtil paginatorReady = new PaginatorUtil();
+
     // Our singleton
     private static UpdateViewUtil singleton;
+    private Timer timer;
 
     /**
      * Private constructor enforces singleton
@@ -81,6 +85,7 @@ public class UpdateViewUtil {
         if (singleton == null) {
             singleton = new UpdateViewUtil();
             singleton.loadCredentials();
+            singleton.startTimer();
         }
         return singleton;
     }
@@ -105,14 +110,6 @@ public class UpdateViewUtil {
 
         // Set the endpoint
         endpointURL        = profileBean.getEndpoint();
-
-//        endpointURL        = "http://192.168.5.136:8075/PrecisionAppConnector/apptvwaitingqueuedata";
-//        // @TODO REMOVE
-//        // For testing only
-//        endpointURL = "https://olo2.o-ez.com/PrecisionAppConnector/apptvwaitingqueuedata";
-//        requestBean.setStationcode(1672849310372l);
-//        requestBean.setLicenseid(1672849310372l);
-//        requestBean.setUsername("GINO P");
     }
     /**
      * Method to send request and update orders from response
@@ -133,8 +130,8 @@ public class UpdateViewUtil {
                 // @TODO update the UI with instructions
             }
             // Flag to know if update is already in progress
-            else if(!isRunning) {
-                isRunning = true; // flag that we are running
+//            else if(!isRunning) {
+            else {
 
                 System.out.println("UTIL START : CURWAITPG: " + currentWaitPage);
 
@@ -283,8 +280,10 @@ public class UpdateViewUtil {
                         }
 
                         // Create paginator to separate order lists into pages
-                        PaginatorUtil paginatorWait = new PaginatorUtil(orderWaitList);
-                        PaginatorUtil paginatorReady = new PaginatorUtil(orderReadyList);
+//                        PaginatorUtil paginatorWait = new PaginatorUtil(orderWaitList);
+//                        PaginatorUtil paginatorReady = new PaginatorUtil(orderReadyList);
+                        paginatorWait.setOrderList(orderWaitList);
+                        paginatorReady.setOrderList(orderReadyList);
 
                         // Calculate number of wait pages
                         totalWaitPages = orderWaitList.size() / paginatorWait.getItemsPerPage();
@@ -308,38 +307,6 @@ public class UpdateViewUtil {
                         ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).updateWaitListCounter(orderWaitList);
                         ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).updateReadyListCounter(orderReadyList);
 
-                        Timer timer = new Timer();
-                        timer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                // Update tv lists
-                                if (currentWaitPage <= totalWaitPages) {
-                                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setWaitListAdapter(paginatorWait.generatePage(currentWaitPage));
-                                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getWaitListAdapter().setOffset(currentWaitPage * paginatorWait.getItemsPerPage());
-                                    currentWaitPage += 1;
-                                }
-                                if (currentReadyPage <= totalReadyPages) {
-                                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setReadyListAdapter(paginatorReady.generatePage(currentReadyPage));
-                                    ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getReadyListAdapter().setOffset(currentReadyPage * paginatorReady.getItemsPerPage());
-                                    currentReadyPage += 1;
-                                }
-
-                                // Cancel timer once all pages are displayed
-                                if ((currentWaitPage > totalWaitPages || totalWaitPages == 0) &&
-                                        (currentReadyPage > totalReadyPages || totalReadyPages == 0)) {
-                                    // Mark end of updates
-                                    isRunning = false;
-                                    System.out.println("UTIL END");
-
-                                    // Cancel timer thread
-                                    timer.cancel();
-
-                                    // Return to show first page of orders
-                                    currentWaitPage = 0;
-                                    currentReadyPage = 0;
-                                }
-                            }
-                        }, 0, 5000); // delay 5 seconds
                     }
                 }
             }
@@ -347,11 +314,48 @@ public class UpdateViewUtil {
         catch (Exception e) {
             e.printStackTrace();
 
-            // No longer running
-            isRunning = false;
+//            // No longer running
+//            isRunning = false;
         }
     }
 
+    /**
+     * Start the timer to display the orders
+     */
+    private void startTimer() {
+        if(timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // When the app first starts there isn't an activity set
+                if(TVWaitQueueApplication.getCurrentActivity() != null) {
+                    // Update tv lists
+                    if (currentWaitPage <= totalWaitPages) {
+                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setWaitListAdapter(paginatorWait.generatePage(currentWaitPage));
+                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getWaitListAdapter().setOffset(currentWaitPage * paginatorWait.getItemsPerPage());
+                        currentWaitPage += 1;
+                    }
+                    if (currentReadyPage <= totalReadyPages) {
+                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setReadyListAdapter(paginatorReady.generatePage(currentReadyPage));
+                        ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).getReadyListAdapter().setOffset(currentReadyPage * paginatorReady.getItemsPerPage());
+                        currentReadyPage += 1;
+                    }
+
+                    // Cancel timer once all pages are displayed
+                    if ((currentWaitPage > totalWaitPages || totalWaitPages == 0) &&
+                            (currentReadyPage > totalReadyPages || totalReadyPages == 0)) {
+
+                        // Return to show first page of orders
+                        currentWaitPage = 0;
+                        currentReadyPage = 0;
+                    }
+                }
+            }
+        }, 0, 5000); // delay 5 seconds
+    }
     /**
      * Remove all kiosk orders from list
      * @param orderList

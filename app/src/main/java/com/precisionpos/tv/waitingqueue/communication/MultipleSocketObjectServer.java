@@ -40,7 +40,7 @@ public abstract class MultipleSocketObjectServer {
     private long lastRestart    = 0;
 
     // Restart the server every hour
-    private int restartInterval = 1000 * 60 * 60;
+    private int restartInterval = 1000 * 60 * 30;
 
     /**
      * Constructor with PORT

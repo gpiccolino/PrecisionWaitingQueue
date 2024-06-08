@@ -23,9 +23,13 @@
     <string name="arrival_time_label">Arrival Time</string>
     <string name="ready_time_label">Ready Time</string>
     <string name="status_label">Status</string>
-    <string name="scan_qr_label">Scan to let us know you\'re here</string>
-    <string name="activate_scan_qr_label">1. Scan the QR code to activate your device</string>
-    <string name="activate_device_code_label">2. Enter your device code: AX5–78J-44K-23U</string>
+    <string name="activate_header_label">TV Wait Queue</string>
+    <string name="activate_setup_guide_label">Setup Guide</string>>
+    <string name="activate_step_1_label">1. Hit the back button on the remote to configure WiFi</string>
+    <string name="activate_step_2_label">2. On the POS click <b>Station Configuration</b></string>
+    <string name="activate_step_3_label">3. Select <b>TV Wait Queue Setup</b></string>
+    <string name="activate_step_4_label">4. Follow the instructions under <b>TV Wait Queue Setup</b></string>
+    <string name="activate_support_label">Need help? Contact support@precisionpos.com | 1-855-673-3700</string>
     <string name="abbreviated_customer_name">%1$s %2$s.</string>
     <string name="valued_customer">Valued Customer</string>
     <string name="ticket_number">Ticket #%1$s</string>
@@ -36,5 +40,6 @@
     <string name="default_customer_name">Gary L.</string>
     <string name="default_ticket_number">Ticket #0000</string>
     <string name="default_date_time">0/0/00 00:00:00 PM</string>
+    <string name="store_msg_default">Thank you for your patronage. Your business is appreciated!</string>
 
 </resources>

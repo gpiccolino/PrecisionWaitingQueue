@@ -83,14 +83,14 @@
 
                 <ImageView
                     android:id="@+id/tv_store_note_icon"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="20dp"
+                    android:layout_height="34dp"
                     android:layout_gravity="center_horizontal|center_vertical"
                     android:contentDescription="@string/icon_waving_hand"
                     android:src="@drawable/icon_waving_hand" />
 
                 <TextView
-                    android:id="@+id/tv_store_note"
+                    android:id="@+id/tv_store_welcome"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_marginStart="15dp"
@@ -190,7 +190,7 @@
                     android:layout_marginEnd="10dp"
                     android:text="@string/waiting_label"
                     android:textColor="#d6d6d6"
-                    android:textSize="24sp" />
+                    android:textSize="22sp" />
 
                 <!-- Waiting Counter -->
                 <TextView
@@ -240,7 +240,7 @@
                     android:layout_marginEnd="10dp"
                     android:text="@string/ready_label"
                     android:textColor="#d6d6d6"
-                    android:textSize="24sp" />
+                    android:textSize="22sp" />
 
                 <!-- Ready Counter -->
                 <TextView
@@ -398,7 +398,7 @@
                     android:layout_weight="5"
                     android:background="@drawable/box_border"
                     android:gravity="center_vertical|center_horizontal"
-                    android:text="@string/ready_label"
+                    android:text="@string/status_label"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -427,7 +427,9 @@
                 android:background="@drawable/box_border"
                 android:divider="#424242"
                 android:dividerHeight="0dp"
-                android:textColor="#a0a0a0" />
+                android:textColor="#a0a0a0" >
+
+            </ListView>
 
             <!-- Right - Ready List -->
             <ListView
@@ -457,26 +459,26 @@
         android:orientation="horizontal"
         android:visibility="visible">
 
-        <!-- Scan message -->
+        <!-- Store message -->
         <TextView
             android:id="@+id/tv_qr_message"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginEnd="25dp"
-            android:gravity="center_vertical|end"
-            android:text="@string/scan_qr_label"
+            android:gravity="center_vertical|center_horizontal"
+            android:text="@string/store_msg_default"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="italic" />
 
         <!-- QR code -->
-        <ImageView
+        <!--<ImageView
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_gravity="center_horizontal|center_vertical"
             android:layout_marginEnd="100dp"
             android:contentDescription="@string/icon_qr_code"
-            android:src="@drawable/qr_waiting"/>
+            android:src="@drawable/qr_waiting"/>-->
 
     </LinearLayout> <!-- End footer container -->
 

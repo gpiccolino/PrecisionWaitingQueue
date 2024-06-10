@@ -11,7 +11,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.precisionpos.tv.waitingqueue.app.TVWaitQueueApplication;
 import com.precisionpos.tv.waitingqueue.beans.ListOrder;
+import com.precisionpos.tv.waitingqueue.beans.StationProfileBean;
+import com.precisionpos.tv.waitingqueue.utils.StationProfileConfigSession;
 import com.precisionpos.tv.waitingqueue.utils.TVWaitQueueListViewAdapter;
 import com.precisionpos.tv.waitingqueue.utils.TVWaitQueueReadyListViewAdapter;
 import com.precisionpos.tv.waitingqueue.utils.UpdateViewUtil;
@@ -30,6 +33,23 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Should we go to the setup screen
+        StationProfileBean profileBean = StationProfileConfigSession.getProfileDetailsBean();
+        if(profileBean.getBusinessID() == 0 ||
+                profileBean.getStoreFrontCD() == 0 ||
+                profileBean.getUsername() == null ||
+                profileBean.getPassword() == null ||
+                profileBean.getUsername().trim().length() == 0 ||
+                profileBean.getPassword().trim().length() == 0) {
+
+            Intent i = new Intent(this, TVWaitQueueSetupActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            this.startActivity(i);
+            this.overridePendingTransition(0, 0);
+            this.finish();
+            return;
+        }
 
         // TODO Authenticate station code
         // TODO If auth returns false, display QR setup

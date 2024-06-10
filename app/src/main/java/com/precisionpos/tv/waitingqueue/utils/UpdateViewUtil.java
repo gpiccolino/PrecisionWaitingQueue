@@ -2,6 +2,7 @@ package com.precisionpos.tv.waitingqueue.utils;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -10,6 +11,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.precisionpos.tv.waitingqueue.MainActivity;
+import com.precisionpos.tv.waitingqueue.TVWaitQueueSetupActivity;
 import com.precisionpos.tv.waitingqueue.app.TVWaitQueueApplication;
 import com.precisionpos.tv.waitingqueue.beans.ListOrder;
 import com.precisionpos.tv.waitingqueue.beans.StationProfileBean;
@@ -124,18 +126,37 @@ public class UpdateViewUtil {
 
         try {
             // This means there is no license
-            if(requestBean.getLicenseid() == 0 || requestBean.getUsername() == null ||
+            if(requestBean.getBusinessID() == 0 ||
+                    requestBean.getStoreFrontCD() == 0 ||
+                    requestBean.getUsername() == null ||
+                    requestBean.getPassword() == null ||
                     requestBean.getUsername().trim().length() == 0 ||
-                    endpointURL == null || endpointURL.trim().length() < 5) {
-                // @TODO update the UI with instructions
+                    requestBean.getPassword().trim().length() == 0) {
+
+                if(TVWaitQueueApplication.getCurrentActivity() != null) {
+                    Intent i = new Intent(TVWaitQueueApplication.getCurrentActivity(), TVWaitQueueSetupActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    TVWaitQueueApplication.getCurrentActivity().startActivity(i);
+                    TVWaitQueueApplication.getCurrentActivity().overridePendingTransition(0, 0);
+                    TVWaitQueueApplication.getCurrentActivity().finish();
+                    return;
+                }
             }
             // Flag to know if update is already in progress
-//            else if(!isRunning) {
             else {
 
                 System.out.println("UTIL START : CURWAITPG: " + currentWaitPage);
 
                 if(TVWaitQueueApplication.getCurrentActivity() != null && requestBean != null) {
+                    // If wa aren't on the main activity
+                    if(!(TVWaitQueueApplication.getCurrentActivity() instanceof  MainActivity)) {
+                        Intent i = new Intent(TVWaitQueueApplication.getCurrentActivity(), MainActivity.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        TVWaitQueueApplication.getCurrentActivity().startActivity(i);
+                        TVWaitQueueApplication.getCurrentActivity().overridePendingTransition(0, 0);
+                        TVWaitQueueApplication.getCurrentActivity().finish();
+                    }
+
                     // Set the tv Android ID
                     //((MainActivity) TVWaitQueueApplication.getCurrentActvity()).setAndroidID("ID: " + getAndroidID());
 
@@ -331,7 +352,7 @@ public class UpdateViewUtil {
             @Override
             public void run() {
                 // When the app first starts there isn't an activity set
-                if(TVWaitQueueApplication.getCurrentActivity() != null) {
+                if(TVWaitQueueApplication.getCurrentActivity() != null && TVWaitQueueApplication.getCurrentActivity() instanceof MainActivity) {
                     // Update tv lists
                     if (currentWaitPage <= totalWaitPages) {
                         ((MainActivity) TVWaitQueueApplication.getCurrentActivity()).setWaitListAdapter(paginatorWait.generatePage(currentWaitPage));

@@ -22,6 +22,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Multiple socket server object server
@@ -31,16 +33,19 @@ import java.net.SocketTimeoutException;
 //public abstract class MultipleSocketObjectServer {
 public abstract class MultipleSocketObjectServer {
     // The default port
-    private int port = 7778;
+    private int port = 9102;
 
     // Kills the socket listener
-    protected boolean socketActive = false;
+    protected boolean socketActive          = false;
+    private Timer keepAliveTimer            = null;
+    private String localEndpoint            = "127.0.0.1";
+    private SocketMessage keepAliveMessage  = new SocketMessage(localEndpoint, 9102);
 
-    // Track the last restart time
-    private long lastRestart    = 0;
-
-    // Restart the server every hour
-    private int restartInterval = 1000 * 60 * 30;
+//    // Track the last restart time
+//    private long lastRestart    = 0;
+//
+//    // Restart the server every hour
+//    private int restartInterval = 1000 * 60 * 30;
 
     /**
      * Constructor with PORT
@@ -63,7 +68,7 @@ public abstract class MultipleSocketObjectServer {
                 try {
                     socketActive = true;
                     socket = new ServerSocket(port);
-                    socket.setSoTimeout(restartInterval);
+//                    socket.setSoTimeout(restartInterval);
 
                     while (true && socketActive) {
 
@@ -86,17 +91,17 @@ public abstract class MultipleSocketObjectServer {
                     }
                 }
 
-                // @since 06/07/24
-                // Make sure the socket was still active and the
-                // the last restart was greater than 60 seconds ago
-                // We don't want to get caught in an infinite loop
-                boolean bRestart    = (System.currentTimeMillis() - lastRestart) > 60000;
-                lastRestart         = System.currentTimeMillis();
-
-                if(socketActive && bRestart) {
-                    startServer();
-                    return;
-                }
+//                // @since 06/07/24
+//                // Make sure the socket was still active and the
+//                // the last restart was greater than 60 seconds ago
+//                // We don't want to get caught in an infinite loop
+//                boolean bRestart    = (System.currentTimeMillis() - lastRestart) > 60000;
+//                lastRestart         = System.currentTimeMillis();
+//
+//                if(socketActive && bRestart) {
+//                    startServer();
+//                    return;
+//                }
             }
 
             @Override
@@ -110,6 +115,9 @@ public abstract class MultipleSocketObjectServer {
         });
         thread.start();
 
+        // Set the keep alive
+        setKeepAlive(30000);
+
         /* Delay to return success or failure */
         try {
             Thread.sleep(2000);
@@ -121,6 +129,29 @@ public abstract class MultipleSocketObjectServer {
 
     }
 
+    /**
+     * Send a keep alive message
+     * @param milliseconds
+     */
+    private void setKeepAlive(long milliseconds) {
+        if(keepAliveTimer != null) {
+            keepAliveTimer.cancel();
+        }
+
+        keepAliveTimer = new Timer();
+        keepAliveTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        keepAliveMessage.sendAsyncObjectMessage("1", 2000);
+                    }
+                }).start();
+            }
+        }, 30000, milliseconds);
+
+    }
     /**
      * Stops the server
      */

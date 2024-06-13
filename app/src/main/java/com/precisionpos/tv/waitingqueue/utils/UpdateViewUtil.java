@@ -133,7 +133,8 @@ public class UpdateViewUtil {
                     requestBean.getUsername().trim().length() == 0 ||
                     requestBean.getPassword().trim().length() == 0) {
 
-                if(TVWaitQueueApplication.getCurrentActivity() != null) {
+                if(TVWaitQueueApplication.getCurrentActivity() != null &&
+                        !(TVWaitQueueApplication.getCurrentActivity() instanceof TVWaitQueueSetupActivity)) {
                     Intent i = new Intent(TVWaitQueueApplication.getCurrentActivity(), TVWaitQueueSetupActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     TVWaitQueueApplication.getCurrentActivity().startActivity(i);
@@ -141,6 +142,7 @@ public class UpdateViewUtil {
                     TVWaitQueueApplication.getCurrentActivity().finish();
                     return;
                 }
+                return;
             }
             // Flag to know if update is already in progress
             else {

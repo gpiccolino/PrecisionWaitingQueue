@@ -150,8 +150,19 @@ public abstract class MultipleSocketObjectServer {
                 }).start();
             }
         }, 30000, milliseconds);
-
     }
+
+    /**
+     * Cleanup
+     * @throws Throwable
+     */
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if(keepAliveTimer != null) {
+            keepAliveTimer.cancel();;
+        }
+    }
+
     /**
      * Stops the server
      */

@@ -16,6 +16,53 @@
         android:background="#232323"
         android:orientation="vertical">
 
+        <!-- Info Header -->
+        <LinearLayout
+            android:id="@+id/tv_info_header"
+            android:layout_width="fill_parent"
+            android:layout_height="20dp"
+            android:background="#232323"
+            android:orientation="horizontal">
+
+            <!-- Unique Station Code -->
+            <TextView
+                android:id="@+id/tv_station_code"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_marginStart="25dp"
+                android:layout_weight="1"
+                android:background="#232323"
+                android:gravity="start|center_vertical"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+            <!-- IP Address -->
+            <TextView
+                android:id="@+id/tv_ip_address"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#232323"
+                android:gravity="center"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+            <!-- Version Code -->
+            <TextView
+                android:id="@+id/tv_version_code"
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical|end"
+                android:layout_marginEnd="25dp"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
         <!-- Header -->
         <LinearLayout
             android:id="@+id/tv_activate_header"
@@ -40,7 +87,6 @@
                 android:textColor="@color/white"
                 android:textSize="38sp"
                 android:textStyle="bold" />
-
 
 
         </LinearLayout> <!-- End Header -->
@@ -78,6 +124,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/setup_instr1"
                     android:layout_width="fill_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -85,6 +132,7 @@
                     android:text="@string/activate_step_1_label"
                     android:textColor="#d6d6d6"
                     android:textSize="20sp" />
+
 
                 <TextView
                     android:layout_width="fill_parent"
@@ -127,7 +175,7 @@
 
         </LinearLayout>
 
-       <!-- End Main Content -->
+        <!-- End Main Content -->
 
     </LinearLayout> <!-- End Outer Container -->
 

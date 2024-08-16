@@ -231,40 +231,42 @@ public class UpdateViewUtil {
                         displayThirdPartyOrders = responseBean.getStationProfile().getDisplayThirdPartyOrders();
 
                         // Loop through all orders
-                        for (ListOrder orderBean : orderList) {
+                        if(orderList != null) {
+                            for (ListOrder orderBean : orderList) {
 
-                            // Filter orders based on profile type
-                            if (profileType == 0) { // 0 = All Order Types
-                                filteredOrderList.add(orderBean);
-                            }
-                            if (profileType == 1) { // 1 = Pickup only
-                                if (orderBean.getOrderType() == 1) {
+                                // Filter orders based on profile type
+                                if (profileType == 0) { // 0 = All Order Types
                                     filteredOrderList.add(orderBean);
                                 }
-                            }
-                            if (profileType == 2) { // 2 = Dine in only
-                                if (orderBean.getOrderType() == 3) {
-                                    filteredOrderList.add(orderBean);
+                                if (profileType == 1) { // 1 = Pickup only
+                                    if (orderBean.getOrderType() == 1) {
+                                        filteredOrderList.add(orderBean);
+                                    }
                                 }
-                            }
-                            if (profileType == 3) { // 3 = Delivery only
-                                if (orderBean.getOrderType() == 2) {
-                                    filteredOrderList.add(orderBean);
+                                if (profileType == 2) { // 2 = Dine in only
+                                    if (orderBean.getOrderType() == 3) {
+                                        filteredOrderList.add(orderBean);
+                                    }
                                 }
-                            }
-                            if (profileType == 4) { // 4 = Pickup & Delivery
-                                if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 2) {
-                                    filteredOrderList.add(orderBean);
+                                if (profileType == 3) { // 3 = Delivery only
+                                    if (orderBean.getOrderType() == 2) {
+                                        filteredOrderList.add(orderBean);
+                                    }
                                 }
-                            }
-                            if (profileType == 5) { // 5 = Pickup & Dine in
-                                if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 3) {
-                                    filteredOrderList.add(orderBean);
+                                if (profileType == 4) { // 4 = Pickup & Delivery
+                                    if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 2) {
+                                        filteredOrderList.add(orderBean);
+                                    }
                                 }
-                            }
-                            if (profileType == 6) { // 6 = Dine in & Delivery
-                                if (orderBean.getOrderType() == 2 || orderBean.getOrderType() == 3) {
-                                    filteredOrderList.add(orderBean);
+                                if (profileType == 5) { // 5 = Pickup & Dine in
+                                    if (orderBean.getOrderType() == 1 || orderBean.getOrderType() == 3) {
+                                        filteredOrderList.add(orderBean);
+                                    }
+                                }
+                                if (profileType == 6) { // 6 = Dine in & Delivery
+                                    if (orderBean.getOrderType() == 2 || orderBean.getOrderType() == 3) {
+                                        filteredOrderList.add(orderBean);
+                                    }
                                 }
                             }
                         }
@@ -309,8 +311,9 @@ public class UpdateViewUtil {
                         paginatorReady.setOrderList(orderReadyList);
 
                         // Calculate number of wait pages
-                        totalWaitPages = orderWaitList.size() / paginatorWait.getItemsPerPage();
-                        if (orderWaitList.size() % paginatorWait.getItemsPerPage() > 0) {
+                        int orderWaitListSize = orderWaitList == null ? 0 : orderWaitList.size();
+                        totalWaitPages =  orderWaitListSize / paginatorWait.getItemsPerPage();
+                        if (orderWaitListSize % paginatorWait.getItemsPerPage() > 0) {
                             totalWaitPages++;
                         }
                         if (totalWaitPages > 0) {
@@ -318,8 +321,9 @@ public class UpdateViewUtil {
                         }
 
                         // Calculate number of ready pages
-                        totalReadyPages = orderReadyList.size() / paginatorReady.getItemsPerPage();
-                        if (orderReadyList.size() % paginatorReady.getItemsPerPage() > 0) {
+                        int orderReadyListSize = orderReadyList == null ? 0 : orderReadyList.size();
+                        totalReadyPages = orderReadyListSize / paginatorReady.getItemsPerPage();
+                        if (orderReadyListSize % paginatorReady.getItemsPerPage() > 0) {
                             totalReadyPages++;
                         }
                         if (totalReadyPages > 0) {
@@ -386,9 +390,12 @@ public class UpdateViewUtil {
      */
     public List<ListOrder> filterKioskOrders(List<ListOrder> orderList) {
         List<ListOrder> filteredOrderList = new ArrayList<ListOrder>();
-        for (ListOrder order : orderList) {
-            if (!order.getIsOrderFromKiosk()) {
-                filteredOrderList.add(order);
+
+        if(orderList != null) {
+            for (ListOrder order : orderList) {
+                if (!order.getIsOrderFromKiosk()) {
+                    filteredOrderList.add(order);
+                }
             }
         }
         return filteredOrderList;
@@ -401,9 +408,12 @@ public class UpdateViewUtil {
      */
     public List<ListOrder> filterOnlineOrders(List<ListOrder> orderList) {
         List<ListOrder> filteredOrderList = new ArrayList<ListOrder>();
-        for (ListOrder order : orderList) {
-            if (!order.getIsOrderFromWeb()) {
-                filteredOrderList.add(order);
+
+        if(orderList != null) {
+            for (ListOrder order : orderList) {
+                if (!order.getIsOrderFromWeb()) {
+                    filteredOrderList.add(order);
+                }
             }
         }
         return filteredOrderList;
@@ -416,11 +426,15 @@ public class UpdateViewUtil {
      */
     public List<ListOrder> filterThirdPartyOrders(List<ListOrder> orderList) {
         List<ListOrder> filteredOrderList = new ArrayList<ListOrder>();
-        for (ListOrder order : orderList) {
-            if (order.getOloType() == 0) {
-                filteredOrderList.add(order);
+
+        if(orderList != null) {
+            for (ListOrder order : orderList) {
+                if (order.getOloType() == 0) {
+                    filteredOrderList.add(order);
+                }
             }
         }
+
         return filteredOrderList;
     }
 
